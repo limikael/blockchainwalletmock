@@ -40,7 +40,7 @@
 		 * Test connect.
 		 */
 		function testList() {
-			$res=self::fetchJson($this->api."/list?password=".$this->settings["walletpassword"]);
+			$res=self::fetchJson($this->api."/list/?password=".$this->settings["walletpassword"]);
 			$this->assertFalse(array_key_exists("error",$res),"list should not return error");
 		}
 
@@ -51,7 +51,7 @@
 			$res=self::fetchJson($this->api."/list?password=".$this->settings["walletpassword"]."xyz");
 			$this->assertEquals($res["error"],"Wrong password.");
 
-			$wrongApiapi="http://".
+			$wrongApi="http://".
 				$this->settings["wallethost"].":".
 				$this->settings["walletport"]."/".
 				$this->settings["walletguid"]."xyz";

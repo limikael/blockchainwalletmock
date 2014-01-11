@@ -63,6 +63,9 @@
 			if (substr($url,0,strlen($dirname))!=$dirname)
 				throw new Exception("Somthing is malformed.");
 
+			/*echo "dirname: ".$dirname."\n";
+			echo "url: ".$url."\n";*/
+
 			return substr($url,strlen($dirname));
 		}
 

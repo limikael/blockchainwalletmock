@@ -127,6 +127,8 @@
 
 			$this->authenticate();
 			$components=RewriteUtil::getPathComponents();
+			//print_r($components);
+
 			if (sizeof($components)<2)
 				$this->response(array("error"=>"Unknown method."));
 

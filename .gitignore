@@ -1,3 +1,4 @@
-composer.lock
-data
-vendor
+/composer.lock
+/data
+/vendor
+/test/data

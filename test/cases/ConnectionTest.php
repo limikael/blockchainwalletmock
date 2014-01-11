@@ -12,8 +12,11 @@
 		 * Set up for test.
 		 */
 		protected function setUp() {
-			$this->settings=parse_ini_file(__DIR__."/testsettings.ini");
-			$this->api=$this->settings["walleturl"]."/".$this->settings["walletguid"];
+			$this->settings=parse_ini_file(__DIR__."/../settings.ini");
+			$this->api="http://".
+				$this->settings["wallethost"].":".
+				$this->settings["walletport"]."/".
+				$this->settings["walletguid"];
 		}
 
 		/**
@@ -48,7 +51,11 @@
 			$res=self::fetchJson($this->api."/list?password=".$this->settings["walletpassword"]."xyz");
 			$this->assertEquals($res["error"],"Wrong password.");
 
-			$wrongApi=$this->settings["walleturl"]."/".$this->settings["walletguid"]."xyz";
+			$wrongApiapi="http://".
+				$this->settings["wallethost"].":".
+				$this->settings["walletport"]."/".
+				$this->settings["walletguid"]."xyz";
+
 			$res=self::fetchJson($wrongApi."/list?password=".$this->settings["walletpassword"]);
 			$this->assertEquals($res["error"],"Wrong guid.");
 		}

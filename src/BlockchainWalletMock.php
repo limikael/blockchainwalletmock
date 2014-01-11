@@ -66,9 +66,16 @@
 		}
 
 		/**
+		 * Get database.
+		 */
+		public function getDatabase() {
+			return $this->db;
+		}
+
+		/**
 		 * Log.
 		 */
-		private function log($message) {
+		public function log($message) {
 			if (!$this->logFile)
 				return;
 
@@ -106,7 +113,8 @@
 			$this->db->exec(
 				"CREATE TABLE IF NOT EXISTS addresses ( ".
 				"  address TEXT PRIMARY KEY, ".
-				"  label TEXT ".
+				"  label TEXT, ".
+				"  archived INTEGER NOT NULL DEFAULT 0 ".
 				")");
 
 			$this->db->exec(
@@ -127,31 +135,20 @@
 
 			$this->authenticate();
 			$components=RewriteUtil::getPathComponents();
-			//print_r($components);
 
 			if (sizeof($components)<2)
 				$this->response(array("error"=>"Unknown method."));
 
-			$this->handler=new BlockchainWalletMockHandler();
+			$this->handler=new BlockchainWalletMockHandler($this);
 			$method="serve_".$components[1];
 
 			if (!method_exists($this->handler,$method))
 				$this->response(array("error"=>"Unknown method."));
 
 			$res=call_user_func(array($this->handler,$method));
+			if ($res===NULL)
+				$res=array("message"=>"ok");
+
 			$this->response($res);
-
-/*			switch ($method) {
-				case "list":
-					$this->handleList("hello");
-					break;
-
-				case "debug_clear":
-					$this->response($this->handleDebugClear());
-					break;
-
-				default:
-					break;
-			}*/
 		}
 	}

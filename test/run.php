@@ -12,7 +12,7 @@
 		"-t ".__DIR__."/server/ ".
 		__DIR__."/server/index.php";
 
-	echo $cmd."\n";
+	//echo $cmd."\n";
 
 	$proc=proc_open($cmd,$descs,$pipes);
 

@@ -81,7 +81,7 @@ There are various configuration options we can set, for example what minimum tra
 API
 ---
 
-The goal is that the API should follow that of https://blockchain.info/api/blockchain_wallet_api, but it is not 100% complete currently. If there is something missing give me a shout and I might be interested in adding the functions you need, or feel free to contribute... :)
+The goal is that the API should follow that of https://blockchain.info/api/blockchain_wallet_api, but it is not 100% complete currently. I have only implemented what I need for my own purpose so far. If there is something missing give me a shout and I might be interested in adding the functions you need, or feel free to contribute... :)
 
 The ID:s for addresses and transaction hashes are not real bitcoin addresses, but actually random MD5 sums. This is deliberate in order to not confuse them with real bitcoin addresses.
 

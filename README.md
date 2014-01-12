@@ -76,7 +76,7 @@ This way we can test our code before deployment, as well as create unit test usi
 Configuration
 -------------
 
-There are various configuration options we can set, for example what minimum transaction the should be accepted. We can also set a callback url in the same way as we do in the blockchain.info Account Settings, and this url will be called using the same parameters. Look at the index.php file in the example folder to see how this is done.
+There are various configuration options we can set, for example what minimum transaction the should be accepted. We can also set a callback url in the same way as we do in the blockchain.info "Account Settings", and this url will be called using the same parameters. Look at the index.php file in the example folder to see how this is done.
 
 API
 ---

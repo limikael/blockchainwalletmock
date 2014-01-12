@@ -6,7 +6,7 @@ Mocked version of the blockchain.info wallet API for automated testing.
 About
 -----
 
-This is a mocked version of the API at https://blockchain.info/api/blockchain_wallet_api that uses a local database to store transactions. Since we are dealing with financial software, it doesn't hurt if we get into the habit of writing tests for our code. In this case we can use this tool to see if we deal with responses and handle callbacks in the correct way.
+This is a mocked version of the API at https://blockchain.info/api/blockchain_wallet_api that uses a local database to store transactions. No bitcoins will be moved from or to any wallet. Since we are dealing with financial software, it doesn't hurt if we get into the habit of writing tests for our code. In this case we can use this tool to see if we deal with responses and handle callbacks in the correct way.
 
 Getting started
 ---------------

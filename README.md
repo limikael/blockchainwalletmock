@@ -6,7 +6,7 @@ Mocked version of the blockchain.info wallet API for automated testing.
 About
 -----
 
-This is a mocked version of the API at https://blockchain.info/api/blockchain_wallet_api that uses a local database to store transactions. No bitcoins will be moved from or to any wallet. Since we are dealing with financial software, it doesn't hurt if we get into the habit of writing tests for our code. In this case we can use this tool to see if we deal with responses and handle callbacks in the correct way.
+This is a mocked version of the API at https://blockchain.info/api/blockchain_wallet_api that uses a local database to store transactions. No bitcoins will be moved to or from any wallet and no fees involving real coins will have to be paied. Since we are dealing with financial software, it doesn't hurt if we get into the habit of writing tests for our code. In order to do that, e we can use this tool to see if we deal with responses and handle callbacks in the correct way.
 
 Getting started
 ---------------
@@ -18,7 +18,7 @@ cd blockchainwalletmock
 php -S localhost:8888 -t example example/index.php
 ```
 
-Once it is started we can see that it is up with:
+Or point an apache web root to that directory. Once it is started we can see that it is up with:
 
 ``` bash
 curl "http://localhost:8888/testwallet/list?password=testpassword"

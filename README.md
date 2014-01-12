@@ -96,9 +96,9 @@ Simulates an incoming transactions. If we have a callback registered it will be 
 
 `debug_confirmation?address=$address&transaction=$transaction&confirmations=$confirmations`
 
-* __address__ _optional_ The address that should receive confirmations for all its transactions.
-* __transaction__ _optional_ The transaction hash of the transaction that should receive a confirmation.
-* __confirmations__ _optional_ The number of confirmations to add.
+* __address__ _Optional._ The address that should receive confirmations for all its transactions.
+* __transaction__ _Optional._ The transaction hash of the transaction that should receive a confirmation.
+* __confirmations__ _Optional._ The number of confirmations to add.
 
 Simulates one or several confirmations. Both the address and transaction hash is optional, in which case all transactions will receive a confirmation.
 

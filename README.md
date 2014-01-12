@@ -71,7 +71,7 @@ curl "http://localhost:8888/testwallet/list?password=testpassword"
 
 You get the idea.
 
-This way we can test our code before deployment, as well as create unit test using e.g. phpunit, without having to worry about what happens to our bitcoins.
+This way we can test our code before deployment, as well as create unit test using e.g. [PHPUnit](http://phpunit.de/), without having to worry about what happens to our bitcoins.
 
 Configuration
 -------------

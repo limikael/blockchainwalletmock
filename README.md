@@ -43,7 +43,7 @@ curl "http://localhost:8888/testwallet/new_address?password=testpassword"
 }
 ```
 
-Now lets simulate an incoming payment:
+Now let's simulate an incoming payment:
 ``` bash
 curl "http://localhost:8888/testwallet/debug_incoming?password=testpassword&address=075bd7684e782dca00007f01b24c34c0&amount=100000000"
 ```
@@ -53,7 +53,7 @@ curl "http://localhost:8888/testwallet/debug_incoming?password=testpassword&addr
 }
 ```
 
-Lets list our addresses again:
+Let's list our addresses again:
 ```bash
 curl "http://localhost:8888/testwallet/list?password=testpassword"
 ```

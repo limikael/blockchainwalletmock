@@ -83,3 +83,5 @@ API
 
 The goal is that the API should follow that of https://blockchain.info/api/blockchain_wallet_api, but it is not 100% complete currently. If there is something missing give me a shout and I might be interested in adding the functions you need, or feel free to contribute... :)
 
+Apart from the functions docummented there, there are some special ones prefixed with `debug_` that we can use for debugging.
+

@@ -20,12 +20,22 @@
 		 * List addresses.
 		 */
 		function serve_list() {
-			$q=$this->db->query("SELECT * FROM addresses WHERE archived=0");
+			$q=$this->db->query(
+				"SELECT a.address AS address, ".
+				"       SUM(t.amount) AS balance, ".
+				"       SUM(CASE WHEN amount>0 THEN amount ELSE 0 END) as total_received ".
+				"FROM addresses AS a ".
+				"LEFT JOIN transactions AS t ON a.address=t.address ".
+				"WHERE a.archived=0 ".
+				"GROUP BY a.address");
+
 			$a=[];
 
 			foreach ($q->fetchAll() as $row) {
 				$a[]=array(
-					"address"=>$row["address"]
+					"address"=>$row["address"],
+					"balance"=>$row["balance"],
+					"total_received"=>$row["total_received"]
 				);
 			}
 

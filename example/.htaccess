@@ -1,0 +1,4 @@
+Options +FollowSymLinks -Indexes
+RewriteEngine On
+
+RewriteRule .* index.php?%{QUERY_STRING} [L]

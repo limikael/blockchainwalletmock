@@ -1,6 +1,7 @@
 <?php
 
 	require_once __DIR__."/utils/RewriteUtil.php";
+	require_once __DIR__."/utils/ArrayUtil.php";
 	require_once __DIR__."/handler/BlockchainWalletMockHandler.php";
 
 	/**
@@ -73,10 +74,12 @@
 		private function authenticate() {
 			$components=RewriteUtil::getPathComponents();
 
-			if ($this->password && $this->password!=$_REQUEST["password"])
+			if ($this->password && 
+					$this->password!=ArrayUtil::getIfExists($_REQUEST,"password"))
 				$this->response(array("error"=>"Wrong password."));
 
-			if ($this->guid && $this->guid!=$components[0]) {
+			if ($this->guid &&
+					$this->guid!=ArrayUtil::getIfExists($components,0)) {
 				//$this->log("expected: ".$this->guid);
 				$this->response(array("error"=>"Wrong guid."));
 			}

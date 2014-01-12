@@ -24,8 +24,6 @@
 			$this->assertEquals($r["archived"],$address);
 
 			$r=$this->doCall("list");
-			$this->assertEquals(sizeof($r["addresses"]),0);
+			$this->assertEquals(sizeof($r["addresses"]),0,"the should be no address left");
 		}
-
-		
 	}

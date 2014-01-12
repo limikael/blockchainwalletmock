@@ -24,7 +24,7 @@ Once it is started we can see that it is up with:
 curl "http://localhost:8888/testwallet/list?password=testpassword"
 ```
 
-Which should gice us the result: (the JSON comes out as raw text, it has been formatted here for readability)
+Which should gice us the result:
 ``` javascript
 {
   "addresses":[
@@ -32,7 +32,7 @@ Which should gice us the result: (the JSON comes out as raw text, it has been fo
 }
 ```
 
-We can create a new address in the same way as we would using the blockchin.info api:
+The JSON comes out as raw text, it has been formatted here for readability. We can create a new address in the same way as we would using the blockchin.info api:
 
 ``` bash
 curl "http://localhost:8888/testwallet/new_address?password=testpassword"

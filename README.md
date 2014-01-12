@@ -83,5 +83,25 @@ API
 
 The goal is that the API should follow that of https://blockchain.info/api/blockchain_wallet_api, but it is not 100% complete currently. If there is something missing give me a shout and I might be interested in adding the functions you need, or feel free to contribute... :)
 
+The ID:s for addresses and transaction hashes are not real bitcoin addresses, but actually random MD5 sums. This is deliberate in order to not confuse them with real bitcoin addresses.
+
 Apart from the functions docummented there, there are some special ones prefixed with `debug_` that we can use for debugging.
 
+`/debug_incoming?address=$address&amount=$amount`
+
+* __address__ The address that should receive an incoming payment.
+* __amount__ The amount to add to the balance of the address.
+
+Simulates an incoming transactions. If we have a callback registered it will be called in the same way as when we use the blockchain.info API.
+
+`debug_confirmation?address=$address&transaction=$transaction&confirmations=$confirmations`
+
+* __address__ _optional_ The address that should receive confirmations for all its transactions.
+* __transaction__ _optional_ The transaction hash of the transaction that should receive a confirmation.
+* __confirmations__ _optional_ The number of confirmations to add.
+
+Simulates one or several confirmations. Both the address and transaction hash is optional, in which case all transactions will receive a confirmation.
+
+`/debug_clear`
+
+Clear all the data in the database.

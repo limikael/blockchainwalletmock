@@ -11,4 +11,6 @@
 	$walletMock->setPassword($settings["walletpassword"]);
 	$walletMock->setDsn("sqlite:".__DIR__."/../data/walletmock.db3");
 	$walletMock->setLogFile(__DIR__."/../data/access.log");
+	$walletMock->setDefaultFee(10000);
+	$walletMock->setCallbackUrl($settings["walletcallback"]);
 	$walletMock->dispatch();

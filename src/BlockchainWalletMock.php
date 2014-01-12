@@ -14,12 +14,29 @@
 		private $logFile;
 		private $db;
 		private $handler;
+		private $defaultFee;
+		private $callbackUrl;
 
 		/**
 		 * Construct.
 		 */
 		public function BlockchainWalletMock() {
+			$this->defaultFee=10000;
+			$this->callbackUrl=NULL;
+		}
 
+		/**
+		 * Set callback url.
+		 */
+		public function setCallbackUrl($value) {
+			$this->callbackUrl=$value;
+		}
+
+		/**
+		 * Get callback url.
+		 */
+		public function getCallbackUrl() {
+			return $this->callbackUrl;
 		}
 
 		/**
@@ -71,6 +88,21 @@
 		public function getDatabase() {
 			return $this->db;
 		}
+
+		/**
+		 * Get default fee.
+		 */
+		public function getDefaultFee() {
+			return $this->defaultFee;
+		}
+
+		/**
+		 * Set default fee.
+		 */
+		public function setDefaultFee($value) {
+			return $this->defaultFee=$value;
+		}
+
 
 		/**
 		 * Log.

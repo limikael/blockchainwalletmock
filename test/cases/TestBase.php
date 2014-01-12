@@ -49,4 +49,32 @@
 
 			return $data;
 		}
+
+		/**
+		 * Clear callback log.
+		 */
+		public function clearCallbackLog() {
+			$fn=__DIR__."/../data/callback.log";
+
+			if (file_exists($fn))
+				unlink($fn);
+		}
+
+		/**
+		 * Get callback log.
+		 */
+		public function getCallbackLog() {
+			$fn=__DIR__."/../data/callback.log";
+
+			if (!file_exists($fn))
+				return array();
+
+			$rows=file($fn);
+			$a=array();
+
+			foreach ($rows as $row)
+				$a[]=json_decode($row,TRUE);
+
+			return $a;
+		}
 	}

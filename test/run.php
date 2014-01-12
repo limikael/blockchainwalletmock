@@ -12,13 +12,18 @@
 		"-t ".__DIR__."/server/ ".
 		__DIR__."/server/index.php";
 
-	//echo $cmd."\n";
+	$serverProc=proc_open($cmd,$descs,$pipes);
 
-	$proc=proc_open($cmd,$descs,$pipes);
+	$cmd="php -S $settings[callbackhost]:$settings[callbackport] ".
+		"-t ".__DIR__."/callback/ ".
+		__DIR__."/callback/index.php";
+
+	$callbackProc=proc_open($cmd,$descs,$pipes);
 
 	echo "**** Waiting for server to come up...\n";
 	sleep(1);
 
 	system(__DIR__."/../vendor/bin/phpunit ".__DIR__."/cases");
 
-	proc_terminate($proc);
+	proc_terminate($serverProc);
+	proc_terminate($callbackProc);

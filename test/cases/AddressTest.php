@@ -18,12 +18,14 @@
 			$this->assertNotNull($address);
 
 			$r=$this->doCall("list");
-			$this->assertEquals($r[0]["address"],$address);
+			$this->assertEquals($r["addresses"][0]["address"],$address);
 
 			$r=$this->doCall("archive_address",array("address"=>$address));
 			$this->assertEquals($r["archived"],$address);
 
 			$r=$this->doCall("list");
-			$this->assertEquals(sizeof($r),0);
+			$this->assertEquals(sizeof($r["addresses"]),0);
 		}
+
+		
 	}

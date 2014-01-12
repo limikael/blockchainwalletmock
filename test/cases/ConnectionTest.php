@@ -3,15 +3,23 @@
 	require_once __DIR__."/TestBase.php";
 
 	/**
-	 * Test connectivity.
+	 * Test basic connectivity.
 	 */
 	class ConnectionTest extends TestBase {
 
 		/**
-		 * Test connect.
+		 * Set up for test.
 		 */
-		function testList() {
-			$res=$this->fetchJson($this->api."/list/?password=".$this->settings["walletpassword"]);
+		protected function setUp() {
+			parent::setUp();
+			$this->doCall("debug_clear");
+		}
+
+		/**
+		 * Test basic connection.
+		 */
+		function testBasic() {
+			$res=$this->doCall("list");
 			$this->assertFalse(array_key_exists("error",$res),"list should not return error");
 		}
 

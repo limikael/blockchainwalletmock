@@ -22,6 +22,8 @@
 		 * Construct.
 		 */
 		public function BlockchainWalletMock() {
+			date_default_timezone_set("UTC");
+
 			$this->defaultFee=10000;
 			$this->callbackUrl=NULL;
 		}

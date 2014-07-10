@@ -80,6 +80,21 @@
 		}
 
 		/**
+		 * Get total balance.
+		 */
+		function serve_balance() {
+			$q=$this->db->prepare("SELECT SUM(amount) AS balance FROM transactions");
+			$q->execute();
+
+			$row=$q->fetch();
+			$balance=$row["balance"];
+
+			return array(
+				"balance"=>$balance
+			);
+		}
+
+		/**
 		 * Get balance of address.
 		 */
 		function serve_address_balance() {

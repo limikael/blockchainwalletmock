@@ -167,7 +167,31 @@
 
 			$q->execute();
 
+			if ($this->isAddressLocal($_REQUEST["to"]))
+				$this->createIncoming($hash,$_REQUEST["to"],$_REQUEST["amount"]);
+
 			return array("tx_hash"=>$hash);
+		}
+
+		/**
+		 * Is this a local address?
+		 */
+		private function isAddressLocal($address) {
+			$q=$this->db->prepare(
+				"SELECT * ".
+				"FROM addresses ".
+				"WHERE address=:address"
+			);
+
+			$q->bindValue("address",$address);
+			$q->execute();
+
+			$rows=$q->fetchAll();
+
+			if (sizeof($rows))
+				return TRUE;
+
+			return FALSE;
 		}
 
 		/**
@@ -176,16 +200,21 @@
 		function serve_debug_incoming() {
 			$hash=md5(microtime());
 
-			//print_r($_REQUEST);
+			$this->createIncoming($hash, $_REQUEST["address"], $_REQUEST["amount"]);
+		}
 
+		/**
+		 * Create incoming transaction.
+		 */
+		private function createIncoming($hash, $address, $amount) {
 			$q=$this->db->prepare(
 				"INSERT INTO transactions (hash, address, amount, confirmations) ".
 				"VALUES (:hash,:address,:amount,:confirmations)"
 			);
 
 			$q->bindValue("hash",$hash);
-			$q->bindValue("address",$_REQUEST["address"]);
-			$q->bindValue("amount",$_REQUEST["amount"]);
+			$q->bindValue("address",$address);
+			$q->bindValue("amount",$amount);
 			$q->bindValue("confirmations",0);
 
 			$q->execute();

@@ -112,4 +112,41 @@
 
 			$this->assertEquals(10000000,$res["balance"]);
 		}
+
+		/**
+		 * Test payment to local address.
+		 */
+		function testLocalTransaction() {
+			$r=$this->doCall("new_address");
+			$this->address2=$r["address"];
+
+			$this->doCall("debug_incoming",array(
+				"address"=>$this->address,
+				"amount"=>10000000
+			));
+
+			$res=$this->doCall("address_balance",array(
+				"address"=>$this->address,
+			));
+
+			$this->assertEquals(10000000,$res["balance"]);
+
+			$res=$this->doCall("payment",array(
+				"to"=>$this->address2,
+				"amount"=>1000000,
+				"from"=>$this->address
+			));
+
+			$res=$this->doCall("address_balance",array(
+				"address"=>$this->address,
+			));
+
+			$this->assertEquals(10000000-1000000-10000,$res["balance"]);
+
+			$res=$this->doCall("address_balance",array(
+				"address"=>$this->address2,
+			));
+
+			$this->assertEquals(1000000,$res["balance"]);
+		}
 	}

@@ -156,10 +156,11 @@
 
 			$this->db->exec(
 				"CREATE TABLE IF NOT EXISTS transactions ( ".
-				"  hash TEXT PRIMARY KEY, ".
+				"  hash TEXT NOT NULL, ".
 				"  address TEXT NOT NULL, ".
 				"  amount BIGINT NOT NULL, ".
-				"  confirmations INTEGER NOT NULL ".
+				"  confirmations INTEGER NOT NULL, ".
+				"  PRIMARY KEY (hash, address) ".
 				")");
 		}
 

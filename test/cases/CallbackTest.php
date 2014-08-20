@@ -36,12 +36,14 @@
 			$address=$res["address"];
 			$this->doCall("debug_incoming",array(
 				"address"=>$address,
-				"amount"=>1000
+				"amount"=>1000,
+				"input_transaction_hash"=>"testinputhash"
 			));
 
 			$log=$this->getCallbackLog();
 			$this->assertEquals(sizeof($log),1);
 			$this->assertEquals($log[0]["input_address"],$address);
+			$this->assertEquals($log[0]["input_transaction_hash"],"testinputhash");
 
 			$params=$log[0];
 			$this->assertEquals(0,$params["confirmations"]);

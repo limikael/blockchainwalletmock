@@ -200,13 +200,18 @@
 		function serve_debug_incoming() {
 			$hash=md5(microtime());
 
-			$this->createIncoming($hash, $_REQUEST["address"], $_REQUEST["amount"]);
+			$input_transaction_hash=NULL;
+
+			if (array_key_exists("input_transaction_hash",$_REQUEST))
+				$input_transaction_hash=$_REQUEST["input_transaction_hash"];
+
+			$this->createIncoming($hash, $_REQUEST["address"], $_REQUEST["amount"], $input_transaction_hash);
 		}
 
 		/**
 		 * Create incoming transaction.
 		 */
-		private function createIncoming($hash, $address, $amount) {
+		private function createIncoming($hash, $address, $amount, $input_transaction_hash=NULL) {
 			$q=$this->db->prepare(
 				"INSERT INTO transactions (hash, address, amount, confirmations) ".
 				"VALUES (:hash,:address,:amount,:confirmations)"
@@ -219,7 +224,7 @@
 
 			$q->execute();
 
-			$this->invokeTransactionCallback($hash);
+			$this->invokeTransactionCallback($hash, $input_transaction_hash);
 		}
 
 		/**
@@ -277,7 +282,7 @@
 		 * "input_transaction_hash": "b27e56961c1b256203c4b7ecaa40e5445e504290fc03dd4b91f1ae12a86ca7a7",
 		 * "transaction_hash": "b27e56961c1b256203c4b7ecaa40e5445e504290fc03dd4b91f1ae12a86ca7a7"
 		 */
-		private function invokeTransactionCallback($hash) {
+		private function invokeTransactionCallback($hash, $input_transaction_hash=NULL) {
 			$url=$this->walletMock->getCallbackUrl();
 
 			if (!$url)
@@ -298,6 +303,9 @@
 			$url.="&transaction_hash=".$hash;
 			$url.="&input_address=".$transaction["address"];
 			$url.="&confirmations=".$transaction["confirmations"];
+
+			if ($input_transaction_hash)
+				$url.="&input_transaction_hash=".$input_transaction_hash;
 
 			$c=curl_init($url);
 			curl_setopt($c,CURLOPT_RETURNTRANSFER,TRUE);

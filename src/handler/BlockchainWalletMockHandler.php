@@ -266,6 +266,16 @@
 
 		/**
 		 * Invoke transaction callback.
+		 * Notifications look like:
+		 * "anonymous": "false",
+		 * "shared": "false",
+		 * "destination_address": "172V4RT6jYtdN47kzY7poXdekZjeB4pd5H",
+		 * "confirmations": "0",
+		 * "address": "172V4RT6jYtdN47kzY7poXdekZjeB4pd5H",
+		 * "value": "100000",
+		 * "input_address": "172V4RT6jYtdN47kzY7poXdekZjeB4pd5H",
+		 * "input_transaction_hash": "b27e56961c1b256203c4b7ecaa40e5445e504290fc03dd4b91f1ae12a86ca7a7",
+		 * "transaction_hash": "b27e56961c1b256203c4b7ecaa40e5445e504290fc03dd4b91f1ae12a86ca7a7"
 		 */
 		private function invokeTransactionCallback($hash) {
 			$url=$this->walletMock->getCallbackUrl();

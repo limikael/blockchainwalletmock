@@ -7,11 +7,34 @@
 
 	$main=__DIR__."/../src/BlockchainWalletMock.php";
 
-	$availableOptions=array("dsn:", "guid:", "password:", "defaultFee:", "callbackUrl:", "port:");
+	$availableOptions=array(
+		"dsn:", "guid:", "password:", "defaultFee:", "callbackUrl:", 
+		"port:", "help");
+
 	$options=getopt("",$availableOptions);
 
-	if (!isset($options["dsn"]))
-		$options["dsn"]="sqlite:".tempnam(sys_get_temp_dir(),"");
+	if (isset($options["help"])) {
+		echo "Usage: blockchainwalletmock [options]\n\n";
+		echo "Options:\n\n";
+		echo "  --port=<port>        The port where to listen.\n";
+		echo "  --guid=<guid>        Expect this guid on client requests.\n";
+		echo "  --dsn=<dsn>          Data service name where to store data.\n";
+		echo "  --defaultFee=<fee>   Use this default fee when emulating transactions.\n";
+		echo "  --callbackUrl=<url>  Callback to notify of incoming transactions.\n";
+		echo "\n";
+
+		exit(1);
+	}
+
+	$tmpfiles=[];
+
+	if (!isset($options["dsn"])) {
+		$fn=tempnam(sys_get_temp_dir(),"");
+
+		$options["dsn"]="sqlite:".$fn;
+
+		$tmpfiles[]=$fn;
+	}
 
 	if (!isset($options["port"]))
 		$options["port"]=8888;
@@ -34,9 +57,27 @@
 	$s.="\$mock->dispatch();\n";
 
 	$tmpname=tempnam(sys_get_temp_dir(),"");
+	$tmpfiles[]=$tmpname;
 	file_put_contents($tmpname,$s);
+
+	echo "Use --help for more info.\n\n";
 
 	echo "Emulating blockchain wallet at: http://".
 		$options["host"].":".$options["port"]."/".$options["guid"]."\n";
+
+	declare(ticks = 1);
+
+	function shutdown() {
+		global $tmpfiles;
+		echo "Closing, removing ".sizeof($tmpfiles)." tmp file(s).\n";
+
+		foreach ($tmpfiles as $fn)
+			unlink($fn);
+
+		exit(0);
+	}
+
+	pcntl_signal(SIGTERM,"shutdown");
+	pcntl_signal(SIGINT,"shutdown");
 
 	system("php -S $options[host]:$options[port] ".$tmpname);

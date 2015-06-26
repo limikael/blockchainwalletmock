@@ -198,6 +198,9 @@
 		 * Simulate incoming transaction.
 		 */
 		function serve_debug_incoming() {
+			if (!isset($_REQUEST["address"]) || !isset($_REQUEST["amount"]))
+				return "need address and amount";
+
 			$hash=md5(microtime());
 
 			$input_transaction_hash=NULL;

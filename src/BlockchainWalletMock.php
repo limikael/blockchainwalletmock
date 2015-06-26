@@ -130,7 +130,7 @@
 		 * Reply and exit.
 		 */
 		private function response($response) {
-			echo json_encode($response);
+			echo json_encode($response)."\n";
 			exit();
 		}
 
@@ -174,14 +174,17 @@
 			$this->authenticate();
 			$components=RewriteUtil::getPathComponents();
 
-			if (sizeof($components)<2)
-				$this->response(array("error"=>"Unknown method."));
+			if ($this->guid)
+				$components=array($components[1]);
+
+			if (sizeof($components)<1)
+				$this->response(array("error"=>"Maformed url"));
 
 			$this->handler=new BlockchainWalletMockHandler($this);
-			$method="serve_".$components[1];
+			$method="serve_".$components[0];
 
 			if (!method_exists($this->handler,$method))
-				$this->response(array("error"=>"Unknown method."));
+				$this->response(array("error"=>"Unknown method: ".$components[0]));
 
 			$res=call_user_func(array($this->handler,$method));
 			if ($res===NULL)

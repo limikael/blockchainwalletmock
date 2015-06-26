@@ -1,0 +1,42 @@
+#!/usr/bin/env php
+
+<?php
+
+	if (php_sapi_name()!="cli")
+		exit("Should be used through the cli.");
+
+	$main=__DIR__."/../src/BlockchainWalletMock.php";
+
+	$availableOptions=array("dsn:", "guid:", "password:", "defaultFee:", "callbackUrl:", "port:");
+	$options=getopt("",$availableOptions);
+
+	if (!isset($options["dsn"]))
+		$options["dsn"]="sqlite:".tempnam(sys_get_temp_dir(),"");
+
+	if (!isset($options["port"]))
+		$options["port"]=8888;
+
+	if (!isset($options["host"]))
+		$options["host"]="localhost";
+
+	if (!isset($options["guid"]))
+		$options["guid"]=NULL;
+
+	$s="<?php \n";
+	$s.="require_once '$main';\n";
+	$s.="\$mock=new BlockchainWalletMock();\n";
+
+	foreach ($options as $option=>$value) {
+		if ($option!="host" && $option!="port")
+			$s.="\$mock->set".ucfirst($option)."(\"".addslashes($value)."\");\n";
+	}
+
+	$s.="\$mock->dispatch();\n";
+
+	$tmpname=tempnam(sys_get_temp_dir(),"");
+	file_put_contents($tmpname,$s);
+
+	echo "Emulating blockchain wallet at: http://".
+		$options["host"].":".$options["port"]."/".$options["guid"]."\n";
+
+	system("php -S $options[host]:$options[port] ".$tmpname);

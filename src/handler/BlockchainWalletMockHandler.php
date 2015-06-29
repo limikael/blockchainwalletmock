@@ -239,12 +239,12 @@
 			$bindValue=NULL;
 
 			if (array_key_exists("transaction",$_REQUEST)) {
-				$s+="WHERE id=?";
+				$s.="WHERE hash=?";
 				$bindValue=$_REQUEST["transaction"];
 			}
 
 			else if (array_key_exists("address",$_REQUEST)) {
-				$s+="WHERE address=?";
+				$s.="WHERE address=?";
 				$bindValue=$_REQUEST["address"];
 			}
 

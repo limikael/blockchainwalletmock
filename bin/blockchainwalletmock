@@ -77,7 +77,13 @@
 		exit(0);
 	}
 
-	pcntl_signal(SIGTERM,"shutdown");
-	pcntl_signal(SIGINT,"shutdown");
+	if (function_exists("pcntl_signal")) {
+		pcntl_signal(SIGTERM,"shutdown");
+		pcntl_signal(SIGINT,"shutdown");
+	}
+
+	else {
+		echo "There is no pcntl_signal, will not clean up tmp files on exit...\n";
+	}
 
 	system("php -S $options[host]:$options[port] ".$tmpname);

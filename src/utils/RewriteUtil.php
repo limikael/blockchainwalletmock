@@ -66,6 +66,9 @@
 			/*echo "dirname: ".$dirname."\n";
 			echo "url: ".$url."\n";*/
 
+			if (php_sapi_name()=="cli-server")
+				return $url;
+
 			return substr($url,strlen($dirname));
 		}
 

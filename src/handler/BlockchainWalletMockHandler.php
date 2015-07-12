@@ -19,7 +19,7 @@
 		/**
 		 * List addresses.
 		 */
-		function serve_list() {
+		function serve_list($params) {
 			$q=$this->db->query(
 				"SELECT a.address AS address, ".
 				"       SUM(t.amount) AS balance, ".
@@ -45,7 +45,7 @@
 		/**
 		 * New address.
 		 */
-		function serve_new_address() {
+		function serve_new_address($params) {
 			$address=md5(microtime());
 
 			$q=$this->db->prepare(
@@ -63,7 +63,7 @@
 		/**
 		 * Clear.
 		 */
-		function serve_debug_clear() {
+		function serve_debug_clear($params) {
 			$this->db->query("DELETE FROM addresses");
 			$this->db->query("DELETE FROM transactions");
 		}
@@ -71,18 +71,18 @@
 		/**
 		 * Archive.
 		 */
-		function serve_archive_address() {
+		function serve_archive_address($params) {
 			$q=$this->db->prepare("UPDATE addresses SET archived=1 WHERE address=:address");
-			$q->bindValue("address",$_REQUEST["address"]);
+			$q->bindValue("address",$params["address"]);
 			$q->execute();
 
-			return array("archived"=>$_REQUEST["address"]);
+			return array("archived"=>$params["address"]);
 		}
 
 		/**
 		 * Get total balance.
 		 */
-		function serve_balance() {
+		function serve_balance($params) {
 			$q=$this->db->prepare("SELECT SUM(amount) AS balance FROM transactions");
 			$q->execute();
 
@@ -97,13 +97,13 @@
 		/**
 		 * Get balance of address.
 		 */
-		function serve_address_balance() {
+		function serve_address_balance($params) {
 			$confirmations=0;
 
-			if (array_key_exists("confirmations",$_REQUEST))
-				$confirmations=$_REQUEST["confirmations"];
+			if (array_key_exists("confirmations",$params))
+				$confirmations=$params["confirmations"];
 
-			return $this->getAddressBalance($_REQUEST["address"],$confirmations);
+			return $this->getAddressBalance($params["address"],$confirmations);
 
 		}
 
@@ -137,19 +137,19 @@
 		/**
 		 * Make payment.
 		 */
-		function serve_payment() {
-			if (!array_key_exists("from", $_REQUEST))
+		function serve_payment($params) {
+			if (!array_key_exists("from", $params))
 				return array("error"=>"From address needs to be specified.");
 
-			if (array_key_exists("fee", $_REQUEST))
-				$fee=$_REQUEST["fee"];
+			if (array_key_exists("fee", $params))
+				$fee=$params["fee"];
 
 			else
 				$fee=$this->walletMock->getDefaultFee();
 
-			$totalAmount=$_REQUEST["amount"]+$fee;
+			$totalAmount=$params["amount"]+$fee;
 
-			$balanceRes=$this->getAddressBalance($_REQUEST["from"],0);
+			$balanceRes=$this->getAddressBalance($params["from"],0);
 			if ($totalAmount>$balanceRes["balance"])
 				return array("error"=>"Insufficient balance.");
 
@@ -161,14 +161,14 @@
 			);
 
 			$q->bindValue("hash",$hash);
-			$q->bindValue("address",$_REQUEST["from"]);
+			$q->bindValue("address",$params["from"]);
 			$q->bindValue("amount",-$totalAmount);
 			$q->bindValue("confirmations",1000);
 
 			$q->execute();
 
-			if ($this->isAddressLocal($_REQUEST["to"]))
-				$this->createIncoming($hash,$_REQUEST["to"],$_REQUEST["amount"]);
+			if ($this->isAddressLocal($params["to"]))
+				$this->createIncoming($hash,$params["to"],$params["amount"]);
 
 			return array("tx_hash"=>$hash);
 		}
@@ -197,18 +197,18 @@
 		/**
 		 * Simulate incoming transaction.
 		 */
-		function serve_debug_incoming() {
-			if (!isset($_REQUEST["address"]) || !isset($_REQUEST["amount"]))
+		function serve_debug_incoming($params) {
+			if (!isset($params["address"]) || !isset($params["amount"]))
 				return "need address and amount";
 
 			$hash=md5(microtime());
 
 			$input_transaction_hash=NULL;
 
-			if (array_key_exists("input_transaction_hash",$_REQUEST))
-				$input_transaction_hash=$_REQUEST["input_transaction_hash"];
+			if (array_key_exists("input_transaction_hash",$params))
+				$input_transaction_hash=$params["input_transaction_hash"];
 
-			$this->createIncoming($hash, $_REQUEST["address"], $_REQUEST["amount"], $input_transaction_hash);
+			$this->createIncoming($hash, $params["address"], $params["amount"], $input_transaction_hash);
 		}
 
 		/**
@@ -233,22 +233,22 @@
 		/**
 		 * Simulate confirmation.
 		 */
-		function serve_debug_confirmation() {
+		function serve_debug_confirmation($params) {
 			$confirmations=1;
-			if (array_key_exists("confirmations",$_REQUEST))
-				$confirmations=$_REQUEST["confirmations"];
+			if (array_key_exists("confirmations",$params))
+				$confirmations=$params["confirmations"];
 
 			$s="SELECT * FROM transactions ";
 			$bindValue=NULL;
 
-			if (array_key_exists("transaction",$_REQUEST)) {
+			if (array_key_exists("transaction",$params)) {
 				$s.="WHERE hash=?";
-				$bindValue=$_REQUEST["transaction"];
+				$bindValue=$params["transaction"];
 			}
 
-			else if (array_key_exists("address",$_REQUEST)) {
+			else if (array_key_exists("address",$params)) {
 				$s.="WHERE address=?";
-				$bindValue=$_REQUEST["address"];
+				$bindValue=$params["address"];
 			}
 
 			$q=$this->db->prepare($s);

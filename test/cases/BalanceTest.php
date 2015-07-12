@@ -1,6 +1,6 @@
 <?php
 
-	require_once __DIR__."/TestBase.php";
+	require_once __DIR__."/../TestBase.php";
 
 	/**
 	 * Test transactions.
@@ -11,34 +11,34 @@
 		 * Test total balance.
 		 */
 		function testBalance() {
-			$this->doCall("debug_clear");
+			$this->createRequest("debug_clear")->exec();
 
-			$res=$this->doCall("balance");
+			$res=$this->createRequest("balance")->exec();
 
 			$this->assertTrue(array_key_exists("balance",$res));
 			$this->assertEquals(0,$res["balance"]);
 
-			$r=$this->doCall("new_address");
+			$r=$this->createRequest("new_address")->exec();
 			$addess1=$r["address"];
 
-			$r=$this->doCall("new_address");
+			$r=$this->createRequest("new_address")->exec();
 			$addess2=$r["address"];
 
-			$res=$this->doCall("debug_incoming",array(
-				"address"=>$address1,
-				"amount"=>200
-			));
+			$res=$this->createRequest("debug_incoming")
+				->setParam("address",$address1)
+				->setParam("amount",200)
+				->exec();
 
 			$this->assertEquals($res["message"],"ok");
 
-			$res=$this->doCall("debug_incoming",array(
-				"address"=>$address2,
-				"amount"=>123
-			));
+			$res=$this->createRequest("debug_incoming")
+				->setParam("address",$address2)
+				->setParam("amount",123)
+				->exec();
 
 			$this->assertEquals($res["message"],"ok");
 
-			$res=$this->doCall("balance");
-			$this->assertEquals($res["balance"],323);
+			$res=$this->createRequest("balance")->exec();
+			$this->assertEquals(323,$res["balance"]);
 		}
 	}

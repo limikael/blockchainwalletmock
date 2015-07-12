@@ -1,6 +1,6 @@
 <?php
 
-	require_once __DIR__."/TestBase.php";
+	require_once __DIR__."/../TestBase.php";
 
 	/**
 	 * Test address creation and list.
@@ -11,19 +11,21 @@
 		 * Test address creation and list.
 		 */
 		function testCreateAddress() {
-			$r=$this->doCall("debug_clear");
-			$r=$this->doCall("new_address");
+			$this->createRequest("debug_clear")->setParam("x","y")->exec();
+			$r=$this->createRequest("new_address")->exec();
 			$address=$r["address"];
 
 			$this->assertNotNull($address);
 
-			$r=$this->doCall("list");
+			$r=$this->createRequest("list")->exec();
 			$this->assertEquals($r["addresses"][0]["address"],$address);
 
-			$r=$this->doCall("archive_address",array("address"=>$address));
+			$req=$this->createRequest("archive_address");
+			$req->setParam("address",$address);
+			$r=$req->exec();
 			$this->assertEquals($r["archived"],$address);
 
-			$r=$this->doCall("list");
+			$r=$this->createRequest("list")->exec();
 			$this->assertEquals(sizeof($r["addresses"]),0,"the should be no address left");
 		}
 	}

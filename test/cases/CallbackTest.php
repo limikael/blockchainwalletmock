@@ -1,6 +1,6 @@
 <?php
 
-	require_once __DIR__."/TestBase.php";
+	require_once __DIR__."/../TestBase.php";
 
 	/**
 	 * Test address creation and list.
@@ -8,81 +8,70 @@
 	class CallbackTest extends TestBase {
 
 		/**
-		 * Set up for test.
+		 * Set up.
 		 */
-		protected function setUp() {
+		function setUp() {
 			parent::setUp();
-			$this->doCall("debug_clear");
-			$this->clearCallbackLog();
-		}		
+			$this->startCallbackServer();
+		}
 
 		/**
 		 * Test invoking the callback not through api.
 		 */
 		function testInvoke() {
-			$c=curl_init($this->settings["walletcallback"]."?hello=world");
+			$c=curl_init("http://localhost:8911/?hello=world");
 			curl_exec($c);
 
 			$log=$this->getCallbackLog();
-			$this->assertEquals(sizeof($log),1);
-			$this->assertEquals("world",$log[0]["hello"]);
+			$this->assertEquals($log["hello"],"world");
 		}
 
 		/**
 		 * Test incoming payment callback.
 		 */
 		function testIncomingPaymentCallback() {
-			$res=$this->doCall("new_address");
+			$res=$this->createRequest("new_address")->exec();
 			$address=$res["address"];
-			$this->doCall("debug_incoming",array(
-				"address"=>$address,
-				"amount"=>1000,
-				"input_transaction_hash"=>"testinputhash"
-			));
+
+			$this->createRequest("debug_incoming")
+				->setParam("address",$address)
+				->setParam("amount",1000)
+				->setParam("input_transaction_hash","testinputhash")
+				->exec();
 
 			$log=$this->getCallbackLog();
-			$this->assertEquals(sizeof($log),1);
-			$this->assertEquals($log[0]["input_address"],$address);
-			$this->assertEquals($log[0]["input_transaction_hash"],"testinputhash");
-
-			$params=$log[0];
-			$this->assertEquals(0,$params["confirmations"]);
-			$this->assertEquals(1000,$params["value"]);
-			$this->assertEquals($address,$params["input_address"]);
-			$this->assertNotNull($params["transaction_hash"]);
+			$this->assertEquals($log["input_address"],$address);
+			$this->assertEquals($log["input_transaction_hash"],"testinputhash");
+			$this->assertEquals(0,$log["confirmations"]);
+			$this->assertEquals(1000,$log["value"]);
+			$this->assertEquals($address,$log["input_address"]);
+			$this->assertNotNull($log["transaction_hash"]);
 		}
 
 		/**
 		 * Test confirmation callback.
 		 */
 		function testConfirmationCallback() {
-			$res=$this->doCall("new_address");
+			$res=$this->createRequest("new_address")->exec();
 			$address=$res["address"];
-			$this->doCall("debug_incoming",array(
-				"address"=>$address,
-				"amount"=>1000
-			));
+
+			$this->createRequest("debug_incoming")
+				->setParam("address",$address)
+				->setParam("amount",1000)
+				->exec();
 
 			$log=$this->getCallbackLog();
-			$this->assertEquals(sizeof($log),1);
-			$this->assertEquals($log[0]["input_address"],$address);
+			$this->assertEquals($log["input_address"],$address);
 
-			$params=$log[0];
-			$this->assertEquals(0,$params["confirmations"]);
-			$this->assertEquals(1000,$params["value"]);
-			$this->assertEquals($address,$params["input_address"]);
-			$this->assertNotNull($params["transaction_hash"]);
+			$this->assertEquals(0,$log["confirmations"]);
+			$this->assertEquals(1000,$log["value"]);
+			$this->assertEquals($address,$log["input_address"]);
+			$this->assertNotNull($log["transaction_hash"]);
 
-			$this->doCall("debug_confirmation");
+			$this->clearCallbackLog();
+			$this->createRequest("debug_confirmation")->exec();
 			$log=$this->getCallbackLog();
-			$this->assertEquals(sizeof($log),2);
-			$this->assertEquals($log[0]["input_address"],$address);
-			$this->assertEquals($log[1]["input_address"],$address);
-
-			$params=$log[0];
-			$this->assertEquals(0,$params["confirmations"]);
-
-			$params=$log[1];
-			$this->assertEquals(1,$params["confirmations"]);
+			$this->assertEquals($log["input_address"],$address);
+			$this->assertEquals(1,$log["confirmations"]);
 		}
 	}

@@ -1,6 +1,6 @@
 <?php
 
-	require_once __DIR__."/TestBase.php";
+	require_once __DIR__."/../TestBase.php";
 
 	/**
 	 * Test transactions.
@@ -15,9 +15,9 @@
 		function setUp() {
 			parent::setUp();
 
-			$r=$this->doCall("debug_clear");
+			$this->createRequest("debug_clear")->exec();
 
-			$r=$this->doCall("new_address");
+			$r=$this->createRequest("new_address")->exec();
 			$this->address=$r["address"];
 		}
 
@@ -25,24 +25,28 @@
 		 * Tear down.
 		 */
 		function tearDown() {
-			$r=$this->doCall("archive_address",array("address"=>$this->address));
+			$r=$this->createRequest("archive_address")
+				->setParam("address",$this->address)
+				->exec();
 			$this->assertEquals($r["archived"],$this->address);
+
+			parent::tearDown();
 		}
 
 		/**
 		 * Test address creation and list.
 		 */
 		function testSimulateIncomming() {
-			$res=$this->doCall("debug_incoming",array(
-				"address"=>$this->address,
-				"amount"=>123
-			));
+			$res=$this->createRequest("debug_incoming")
+				->setParam("address",$this->address)
+				->setParam("amount",123)
+				->exec();
 
 			$this->assertEquals($res["message"],"ok");
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->exec();
 
 			$this->assertEquals($res["address"],$this->address);
 			$this->assertEquals($res["balance"],123);
@@ -52,29 +56,29 @@
 		 * Test making a payment.
 		 */
 		function testPayment() {
-			$this->doCall("debug_incoming",array(
-				"address"=>$this->address,
-				"amount"=>10000000
-			));
+			$this->createRequest("debug_incoming")
+				->setParam("address",$this->address)
+				->setParam("amount",10000000)
+				->exec();
 
-			$res=$this->doCall("payment",array(
-				"to"=>"some_random_place",
-				"amount"=>1000000,
-				"from"=>$this->address
-			));
+			$res=$this->createRequest("payment")
+				->setParam("to","some_random_place")
+				->setParam("amount",1000000)
+				->setParam("from",$this->address)
+				->exec();
 
 			$this->assertNotNull($res["tx_hash"]);
-			$res=$this->doCall("payment",array(
-				"to"=>"some_random_place",
-				"amount"=>1000000000,
-				"from"=>$this->address
-			));
+			$res=$this->createRequest("payment")
+				->setParam("to","some_random_place")
+				->setParam("amount",1000000000)
+				->setParam("from",$this->address)
+				->exec();
 
 			$this->assertNotNull($res["error"]);
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->exec();
 
 			$this->assertEquals($res["address"],$this->address);
 			$this->assertEquals($res["balance"],9000000-10000);
@@ -85,30 +89,30 @@
 		 * Test confirmations.
 		 */
 		function testConfirmations() {
-			$this->doCall("debug_incoming",array(
-				"address"=>$this->address,
-				"amount"=>10000000
-			));
+			$this->createRequest("debug_incoming")
+				->setParam("address",$this->address)
+				->setParam("amount",10000000)
+				->exec();
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address,
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->exec();
 
 			$this->assertEquals(10000000,$res["balance"]);
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address,
-				"confirmations"=>1
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->setParam("confirmations",1)
+				->exec();
 
 			$this->assertEquals($res["balance"],0);
 
-			$this->doCall("debug_confirmation");
+			$this->createRequest("debug_confirmation")->exec();
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address,
-				"confirmations"=>1
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->setParam("confirmations",1)
+				->exec();
 
 			$this->assertEquals(10000000,$res["balance"]);
 		}
@@ -117,35 +121,35 @@
 		 * Test payment to local address.
 		 */
 		function testLocalTransaction() {
-			$r=$this->doCall("new_address");
+			$r=$this->createRequest("new_address")->exec();
 			$this->address2=$r["address"];
 
-			$this->doCall("debug_incoming",array(
-				"address"=>$this->address,
-				"amount"=>10000000
-			));
+			$this->createRequest("debug_incoming")
+				->setParam("address",$this->address)
+				->setParam("amount",10000000)
+				->exec();
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address,
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->exec();
 
 			$this->assertEquals(10000000,$res["balance"]);
 
-			$res=$this->doCall("payment",array(
-				"to"=>$this->address2,
-				"amount"=>1000000,
-				"from"=>$this->address
-			));
+			$res=$this->createRequest("payment")
+				->setParam("to",$this->address2)
+				->setParam("amount",1000000)
+				->setParam("from",$this->address)
+				->exec();
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address,
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address)
+				->exec();
 
 			$this->assertEquals(10000000-1000000-10000,$res["balance"]);
 
-			$res=$this->doCall("address_balance",array(
-				"address"=>$this->address2,
-			));
+			$res=$this->createRequest("address_balance")
+				->setParam("address",$this->address2)
+				->exec();
 
 			$this->assertEquals(1000000,$res["balance"]);
 		}

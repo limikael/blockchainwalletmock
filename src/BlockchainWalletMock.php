@@ -1,8 +1,37 @@
 <?php
 
+	require_once __DIR__."/../vendor/autoload.php";
 	require_once __DIR__."/utils/RewriteUtil.php";
 	require_once __DIR__."/utils/ArrayUtil.php";
 	require_once __DIR__."/handler/BlockchainWalletMockHandler.php";
+
+	/**
+	 * Server.
+	 * Mainly just lets the main instance handle the request.
+	 */
+	class BlockchainWalletMockServer extends HTTPServer {
+
+		/**
+		 * Constructor.
+		 */
+		function __construct($blockchainWalletMock, $options) {
+			$this->blockchainWalletMock=$blockchainWalletMock;
+
+			parent::__construct($options);
+		}
+
+		/**
+		 * Route request.
+		 */
+		function route_request($request) {
+			$path=RewriteUtil::splitUrlPath($request->uri);
+			parse_str($request->query_string,$params);
+
+			$response=$this->blockchainWalletMock->handle($path,$params);
+
+			return $this->text_response(200,$response);
+		}
+	}
 
 	/**
 	 * Mocked version of the blockchain.info wallet API.
@@ -17,6 +46,10 @@
 		private $handler;
 		private $defaultFee;
 		private $callbackUrl;
+		private $server;
+		private $pid;
+		private $port;
+		private $showLog;
 
 		/**
 		 * Construct.
@@ -26,6 +59,8 @@
 
 			$this->defaultFee=10000;
 			$this->callbackUrl=NULL;
+			$this->port=8910;
+			$this->showLog=TRUE;
 		}
 
 		/**
@@ -33,6 +68,13 @@
 		 */
 		public function setCallbackUrl($value) {
 			$this->callbackUrl=$value;
+		}
+
+		/**
+		 * Set port.
+		 */
+		public function setPort($value) {
+			$this->port=$value;
 		}
 
 		/**
@@ -68,6 +110,13 @@
 		 */
 		public function setLogFile($value) {
 			$this->logFile=$value;
+		}
+
+		/**
+		 * Set log file.
+		 */
+		public function setShowLog($value) {
+			$this->showLog=$value;
 		}
 
 		/**
@@ -113,25 +162,20 @@
 		 * Log.
 		 */
 		public function log($message) {
-			if (!$this->logFile)
-				return;
+			if ($this->logFile) {
+				$data=array(
+					"stamp"=>date("Y-m-d H:i:s"),
+					"message"=>$message
+				);
 
-			$data=array(
-				"stamp"=>date("Y-m-d H:i:s"),
-				"message"=>$message
-			);
+				$res=file_put_contents($this->logFile,json_encode($data)."\n",FILE_APPEND);
+			}
 
-			$res=file_put_contents($this->logFile,json_encode($data)."\n",FILE_APPEND);
-			if (!$res)
-				$this->response(array("error"=>"Could not write log file."));
-		}
-
-		/**
-		 * Reply and exit.
-		 */
-		private function response($response) {
-			echo json_encode($response)."\n";
-			exit();
+			if ($this->showLog) {
+				$out=fopen("php://stdout","w");
+				fwrite($out,$message."\n");
+				fclose($out);
+			}
 		}
 
 		/**
@@ -144,7 +188,7 @@
 			}
 
 			catch (Exception $e) {
-				$this->response(array("error"=>"Unable to connect to database: ".$e->getMessage()));
+				throw new Exception("Unable to connect to database: ".$e->getMessage());
 			}
 
 			$this->db->exec(
@@ -165,9 +209,97 @@
 		}
 
 		/**
+		 *
+		 */
+		private function init() {
+			if (!$this->port)
+				throw new Exception("no port");
+
+			$this->initDatabase();
+		}
+
+		/**
+		 * Run as a child process until stop is called.
+		 */
+		public function runInBackground() {
+			$this->init();
+
+			$this->pid=pcntl_fork();
+
+			if ($this->pid<0)
+				throw new Exception("Could not fork");
+
+			// Parent.
+			if ($this->pid) {
+				register_shutdown_function(array($this,"stop"));
+			}
+
+			// Child.
+			if (!$this->pid) {
+				$this->run();
+			}
+		}
+
+		/**
+		 * Stop.
+		 */
+		public function stop() {
+			if ($this->pid) {
+				posix_kill($this->pid,SIGINT);
+				pcntl_waitpid($this->pid,$status);
+
+				$this->pid=NULL;
+			}
+		}
+
+		/**
+		 * Run forever.
+		 */
+		public function runForever() {
+			$this->init();
+			$this->run();
+		}
+
+		/**
+		 * Run server.
+		 */
+		private function run() {
+			$server=new BlockchainWalletMockServer($this,array(
+				"port"=>$this->port
+			));
+
+			$server->run_forever();
+		}
+
+		/**
+		 * Handle a request.
+		 */
+		public function handle($components, $params) {
+			$this->log("Req: ".$components[0]);
+
+			if ($this->guid)
+				$components=array($components[1]);
+
+			if (sizeof($components)<1)
+				return "Maformed url";
+
+			$this->handler=new BlockchainWalletMockHandler($this);
+			$method="serve_".$components[0];
+
+			if (!method_exists($this->handler,$method))
+				return "Unknown method: ".$components[0];
+
+			$res=call_user_func(array($this->handler,$method),$params);
+			if ($res===NULL)
+				$res=array("message"=>"ok");
+
+			return json_encode($res)."\n";
+		}
+
+		/**
 		 * Dispatch call.
 		 */
-		public function dispatch() {
+/*		public function dispatch() {
 			$this->initDatabase();
 			$this->log(RewriteUtil::getPathComponents());
 
@@ -191,5 +323,5 @@
 				$res=array("message"=>"ok");
 
 			$this->response($res);
-		}
+		}*/
 	}

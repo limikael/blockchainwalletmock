@@ -2,68 +2,53 @@
 
 <?php
 
+	require_once __DIR__."/../src/BlockchainWalletMock.php";
+
 	if (php_sapi_name()!="cli")
 		exit("Should be used through the cli.");
 
-	$main=__DIR__."/../src/BlockchainWalletMock.php";
-
 	$availableOptions=array(
 		"dsn:", "guid:", "password:", "defaultFee:", "callbackUrl:", 
-		"port:", "help");
+		"port:", "help", "leaveTmp");
 
 	$options=getopt("",$availableOptions);
 
-	if (isset($options["help"])) {
+	if (!isset($options["port"]) || isset($options["help"])) {
 		echo "Usage: blockchainwalletmock [options]\n\n";
 		echo "Options:\n\n";
-		echo "  --port=<port>        The port where to listen.\n";
+		echo "  --port=<port>        The port where to listen. Required.\n";
 		echo "  --guid=<guid>        Expect this guid on client requests.\n";
 		echo "  --dsn=<dsn>          Data service name where to store data.\n";
 		echo "  --defaultFee=<fee>   Use this default fee when emulating transactions.\n";
 		echo "  --callbackUrl=<url>  Callback to notify of incoming transactions.\n";
+		echo "  --leaveTmp           Don't remove tmp files.\n";
 		echo "\n";
 
 		exit(1);
 	}
 
+	$blockchanWalletMock=new BlockchainWalletMock();
+
 	$tmpfiles=[];
 
 	if (!isset($options["dsn"])) {
 		$fn=tempnam(sys_get_temp_dir(),"");
-
 		$options["dsn"]="sqlite:".$fn;
-
 		$tmpfiles[]=$fn;
 	}
 
-	if (!isset($options["port"]))
-		$options["port"]=8888;
+	$blockchanWalletMock->setPort($options["port"]);
 
-	if (!isset($options["host"]))
-		$options["host"]="localhost";
+	$blockchanWalletMock->setDsn($options["dsn"]);
 
-	if (!isset($options["guid"]))
-		$options["guid"]=NULL;
+	if ($options["callbackUrl"])
+		$blockchanWalletMock->setCallbackUrl($options["callbackUrl"]);
 
-	$s="<?php \n";
-	$s.="require_once '$main';\n";
-	$s.="\$mock=new BlockchainWalletMock();\n";
+	if ($options["guid"])
+		$blockchanWalletMock->setGuid($options["guid"]);
 
-	foreach ($options as $option=>$value) {
-		if ($option!="host" && $option!="port")
-			$s.="\$mock->set".ucfirst($option)."(\"".addslashes($value)."\");\n";
-	}
-
-	$s.="\$mock->dispatch();\n";
-
-	$tmpname=tempnam(sys_get_temp_dir(),"");
-	$tmpfiles[]=$tmpname;
-	file_put_contents($tmpname,$s);
-
-	echo "Use --help for more info.\n\n";
-
-	echo "Emulating blockchain wallet at: http://".
-		$options["host"].":".$options["port"]."/".$options["guid"]."\n";
+	if ($options["defaultFee"])
+		$blockchanWalletMock->setDefaultFee($options["defaultFee"]);
 
 	declare(ticks = 1);
 
@@ -77,13 +62,13 @@
 		exit(0);
 	}
 
-	if (function_exists("pcntl_signal")) {
+	if (!isset($options["leaveTmp"]) && function_exists("pcntl_signal")) {
 		pcntl_signal(SIGTERM,"shutdown");
 		pcntl_signal(SIGINT,"shutdown");
 	}
 
 	else {
-		echo "There is no pcntl_signal, will not clean up tmp files on exit...\n";
+		echo "Will not clean up tmp files on exit...\n";
 	}
 
-	system("php -S $options[host]:$options[port] ".$tmpname);
+	$blockchanWalletMock->runForever();

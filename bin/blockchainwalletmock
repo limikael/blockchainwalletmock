@@ -2,7 +2,21 @@
 
 <?php
 
-	require_once __DIR__."/../src/BlockchainWalletMock.php";
+	$autoloadfiles=array(
+		__DIR__."/../vendor/autoload.php",
+		__DIR__."/../../../autoload.php",
+	);
+
+	foreach ($autoloadfiles as $file)
+		if (file_exists($file))
+			$autoloadfile=$file;
+
+	if (!isset($autoloadfile))
+		throw new Exception("Can't find autoload.php");
+
+	require_once $autoloadfile;
+
+	use blockchainwalletmock\BlockchainWalletMock;
 
 	if (php_sapi_name()!="cli")
 		exit("Should be used through the cli.");

@@ -1,5 +1,9 @@
 <?php
 
+	namespace blockchainwalletmock;
+
+	use \Exception;
+
 	/**
 	 * Array utility.
 	 */

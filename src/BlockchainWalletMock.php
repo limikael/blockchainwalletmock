@@ -1,21 +1,14 @@
 <?php
 
-	$autoloadfiles=array(
-		__DIR__."/../vendor/autoload.php",
-		__DIR__."/../../../autoload.php",
-	);
+	namespace blockchainwalletmock;
 
-	foreach ($autoloadfiles as $file)
-		if (file_exists($file))
-			$autoloadfile=$file;
-
-	if (!isset($autoloadfile))
-		throw new Exception("Can't find autoload.php");
-
-	require_once $autoloadfile;
 	require_once __DIR__."/utils/RewriteUtil.php";
 	require_once __DIR__."/utils/ArrayUtil.php";
 	require_once __DIR__."/handler/BlockchainWalletMockHandler.php";
+
+	use HTTPServer;
+	use \Exception;
+	use \PDO;
 
 	/**
 	 * Server.
@@ -66,7 +59,7 @@
 		/**
 		 * Construct.
 		 */
-		public function BlockchainWalletMock() {
+		public function __construct() {
 			date_default_timezone_set("UTC");
 
 			$this->defaultFee=10000;

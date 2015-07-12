@@ -11,17 +11,22 @@ This is a mocked version of the API at https://blockchain.info/api/blockchain_wa
 Getting started
 ---------------
 
-There is an example setup in the `example` folder. You can run it with
+First, install with:
 
 ``` bash
-cd blockchainwalletmock
-php -S localhost:8888 -t example example/index.php
+composer global require blockchainwalletmock
 ```
 
-Or point an apache web root to that directory. Once it is started we can see that it is up with:
+And the run with:
 
 ``` bash
-curl "http://localhost:8888/testwallet/list?password=testpassword"
+blockchainwalletmock --port 8888
+```
+
+Once it is started we can see that it is up with:
+
+``` bash
+curl "http://localhost:8888/list?password=testpassword"
 ```
 
 Which should gice us the result:
@@ -35,7 +40,7 @@ Which should gice us the result:
 The JSON comes out as raw text, it has been formatted here for readability. We can create a new address in the same way as we would using the blockchin.info api:
 
 ``` bash
-curl "http://localhost:8888/testwallet/new_address?password=testpassword"
+curl "http://localhost:8888/new_address?password=testpassword"
 ```
 ``` javascript
 {
@@ -45,7 +50,7 @@ curl "http://localhost:8888/testwallet/new_address?password=testpassword"
 
 Now let's simulate an incoming payment:
 ``` bash
-curl "http://localhost:8888/testwallet/debug_incoming?password=testpassword&address=075bd7684e782dca00007f01b24c34c0&amount=100000000"
+curl "http://localhost:8888/debug_incoming?password=testpassword&address=075bd7684e782dca00007f01b24c34c0&amount=100000000"
 ```
 ``` javascript
 {
@@ -55,7 +60,7 @@ curl "http://localhost:8888/testwallet/debug_incoming?password=testpassword&addr
 
 Let's list our addresses again:
 ```bash
-curl "http://localhost:8888/testwallet/list?password=testpassword"
+curl "http://localhost:8888/list?password=testpassword"
 ```
 ```javascript
 {
@@ -76,7 +81,10 @@ This way we can test our code before deployment, as well as create unit test usi
 Configuration
 -------------
 
-There are various configuration options we can set, for example what minimum transaction the should be accepted. We can also set a callback url in the same way as we do in the blockchain.info "Account Settings", and this url will be called using the same parameters. Look at the index.php file in the example folder to see how this is done.
+There are various configuration options we can set, for example what minimum transaction the should be accepted. We can also set a callback url in the same way as we do in the blockchain.info "Account Settings", and this url will be called using the same parameters. Run blockchainwalletmock without parameters to see a list of available options.
+
+Starting from within a test
+---------------------------
 
 API
 ---

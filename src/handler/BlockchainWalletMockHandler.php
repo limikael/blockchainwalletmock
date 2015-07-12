@@ -1,5 +1,9 @@
 <?php
 
+	namespace blockchainwalletmock;
+
+	use \Exception;
+
 	/**
 	 * Handle api calls.
 	 */
@@ -11,9 +15,12 @@
 		/**
 		 * Construct.
 		 */
-		public function BlockchainWalletMockHandler($walletMock) {
+		public function __construct($walletMock) {
 			$this->walletMock=$walletMock;
 			$this->db=$this->walletMock->getDatabase();
+
+			if (!$this->db)
+				throw new Exception("no database");
 		}
 
 		/**

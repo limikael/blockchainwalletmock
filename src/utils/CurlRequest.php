@@ -1,5 +1,9 @@
 <?php
 
+	namespace blockchainwalletmock;
+
+	use \Exception;
+
 	/**
 	 * Make a request using curl.
 	 */

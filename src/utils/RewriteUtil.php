@@ -1,5 +1,9 @@
 <?php
 
+	namespace blockchainwalletmock;
+
+	use \Exception;
+
 	/**
 	 * Util for use with apache mod rewrite.
 	 */

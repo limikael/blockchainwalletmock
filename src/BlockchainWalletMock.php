@@ -1,5 +1,17 @@
 <?php
 
+	$autoloadfiles=array(
+		__DIR__."/../vendor/autoload.php",
+		__DIR__."/../../../autoload.php",
+	);
+
+	foreach ($autoloadfiles as $file)
+		if (file_exists($file))
+			$autoloadfile=$file;
+
+	if (!isset($autoloadfile))
+		throw new Exception("Can't find autoload.php");
+
 	require_once __DIR__."/../vendor/autoload.php";
 	require_once __DIR__."/utils/RewriteUtil.php";
 	require_once __DIR__."/utils/ArrayUtil.php";

@@ -3,9 +3,7 @@
 	"description": "Mocks the blockchain.info wallet api for testing...",
 	"bin": ["bin/blockchainwalletmock"],
 	"require-dev": {
-		"phpunit/phpunit": "4.7.*"
-	},
-	"require": {
+		"phpunit/phpunit": "4.7.*",
 		"youngj/httpserver": "^1.0"
 	},
 	"autoload": {

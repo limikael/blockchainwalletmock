@@ -27,6 +27,13 @@
 		 * List addresses.
 		 */
 		function serve_list($params) {
+			return array("addresses"=>$this->getList());
+		}
+
+		/**
+		 *
+		 */
+		function getList() {
 			$q=$this->db->query(
 				"SELECT a.address AS address, ".
 				"       SUM(t.amount) AS balance, ".
@@ -46,7 +53,7 @@
 				);
 			}
 
-			return array("addresses"=>$a);
+			return $a;		
 		}
 
 		/**
@@ -145,9 +152,6 @@
 		 * Make payment.
 		 */
 		function serve_payment($params) {
-			if (!array_key_exists("from", $params))
-				return array("error"=>"From address needs to be specified.");
-
 			if (array_key_exists("fee", $params))
 				$fee=$params["fee"];
 
@@ -156,23 +160,57 @@
 
 			$totalAmount=$params["amount"]+$fee;
 
-			$balanceRes=$this->getAddressBalance($params["from"],0);
-			if ($totalAmount>$balanceRes["balance"])
-				return array("error"=>"Insufficient balance.");
-
 			$hash=md5(microtime());
 
-			$q=$this->db->prepare(
-				"INSERT INTO transactions (hash, address, amount, confirmations) ".
-				"VALUES (:hash,:address,:amount,:confirmations)"
-			);
+			if (isset($params["from"])) {
+				$from=array(
+					$params["from"]=>$totalAmount
+				);
+			}
 
-			$q->bindValue("hash",$hash);
-			$q->bindValue("address",$params["from"]);
-			$q->bindValue("amount",-$totalAmount);
-			$q->bindValue("confirmations",1000);
+			else {
+				$from=array();
+				$list=$this->getList();
+				$left=$totalAmount;
 
-			$q->execute();
+				foreach ($list as $address) {
+					//echo "left: ".$left."\n";
+					if ($left>0 && $address["balance"]) {
+						if ($left>$address["balance"]) {
+							$from[$address["address"]]=$address["balance"];
+							$left-=$address["balance"];
+						}
+
+						else {
+							$from[$address["address"]]=$left;
+							$left=0;
+						}
+					}
+				}
+
+				if ($left>0)
+					return array("error"=>"Insufficient balance.");
+
+				//print_r($from);
+			}
+
+			foreach ($from as $from_address=>$from_amount) {
+				$balanceRes=$this->getAddressBalance($from_address,0);
+				if ($from_amount>$balanceRes["balance"])
+					return array("error"=>"Insufficient balance.");
+
+				$q=$this->db->prepare(
+					"INSERT INTO transactions (hash, address, amount, confirmations) ".
+					"VALUES (:hash,:address,:amount,:confirmations)"
+				);
+
+				$q->bindValue("hash",$hash);
+				$q->bindValue("address",$from_address);
+				$q->bindValue("amount",-$from_amount);
+				$q->bindValue("confirmations",1000);
+
+				$q->execute();
+			}
 
 			if ($this->isAddressLocal($params["to"]))
 				$this->createIncoming($hash,$params["to"],$params["amount"]);

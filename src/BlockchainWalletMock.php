@@ -237,6 +237,7 @@
 			// Parent.
 			if ($this->pid) {
 				register_shutdown_function(array($this,"stop"));
+				usleep(100000);
 			}
 
 			// Child.

@@ -32,8 +32,8 @@
 			$this->clearCallbackLog();
 			$pid=shell_exec("php -S localhost:8911 ".__DIR__."/callback/index.php > /dev/null & echo $!");
 
-			//usleep(500000);
-			sleep(1);
+			usleep(100000);
+			//sleep(1);
 
 			$this->callbackServerPid=$pid;
 		}

@@ -153,4 +153,42 @@
 
 			$this->assertEquals(1000000,$res["balance"]);
 		}
+
+		/**
+		 * test payment without a from address.
+		 */
+		function testPaymentWithoutFrom() {
+			$r=$this->createRequest("new_address")->exec();
+			$address1=$r["address"];
+
+			$r=$this->createRequest("new_address")->exec();
+			$address2=$r["address"];
+
+			$this->createRequest("debug_incoming")
+				->setParam("address",$address1)
+				->setParam("amount",100000)
+				->exec();
+
+			$this->createRequest("debug_incoming")
+				->setParam("address",$address2)
+				->setParam("amount",100000)
+				->exec();
+
+			$res=$this->createRequest("payment")
+				->setParam("to","some_random_place")
+				->setParam("amount",250000)
+				->exec();
+
+			$this->assertEquals("Insufficient balance.",$res["error"]);
+
+			$res=$this->createRequest("payment")
+				->setParam("to","some_random_place")
+				->setParam("amount",150000)
+				->exec();
+
+			$res=$this->createRequest("balance")
+				->exec();
+
+			$this->assertEquals(40000,$res["balance"]);
+		}
 	}

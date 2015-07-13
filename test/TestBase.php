@@ -1,6 +1,6 @@
 <?php
 
-	require_once __DIR__."/../src/BlockchainWalletMock.php";
+	require_once __DIR__."/../vendor/autoload.php";
 	require_once __DIR__."/../src/utils/CurlRequest.php";
 
 	use blockchainwalletmock\BlockchainWalletMock;

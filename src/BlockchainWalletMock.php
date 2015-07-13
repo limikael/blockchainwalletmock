@@ -55,6 +55,7 @@
 		private $pid;
 		private $port;
 		private $showLog;
+		private $tmpFile;
 
 		/**
 		 * Construct.
@@ -66,6 +67,7 @@
 			$this->callbackUrl=NULL;
 			$this->port=8910;
 			$this->showLog=TRUE;
+			$this->tmpFile=NULL;
 		}
 
 		/**
@@ -187,6 +189,11 @@
 		 * Initialize database.
 		 */
 		private function initDatabase() {
+			if (!$this->dsn) {
+				$this->tmpFile=tempnam(sys_get_temp_dir(),"");
+				$this->dsn="sqlite:".$this->tmpFile;
+			}
+
 			try {
 				$this->db=new PDO($this->dsn);
 				$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -255,6 +262,11 @@
 				pcntl_waitpid($this->pid,$status);
 
 				$this->pid=NULL;
+			}
+
+			if ($this->tmpFile) {
+				unlink($this->tmpFile);
+				$this->tmpFile=null;
 			}
 		}
 

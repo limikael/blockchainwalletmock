@@ -16,12 +16,10 @@
 
 		protected function setUp() {
 			$this->port=8910;
-			$this->dbFile=tempnam(sys_get_temp_dir(),"");
 
 			$this->blockchainWalletMock=new BlockchainWalletMock();
 			$this->blockchainWalletMock->setCallbackUrl("http://localhost:8911/");
 			$this->blockchainWalletMock->setPort(8910);
-			$this->blockchainWalletMock->setDsn("sqlite:".$this->dbFile);
 			$this->blockchainWalletMock->setShowLog(FALSE);
 			$this->blockchainWalletMock->runInBackground();
 
@@ -42,7 +40,6 @@
 			$this->clearCallbackLog();
 
 			$this->blockchainWalletMock->stop();
-			unlink($this->dbFile);
 
 			if ($this->callbackServerPid) {
 				posix_kill($this->callbackServerPid,SIGKILL);

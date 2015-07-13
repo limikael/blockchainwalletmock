@@ -2,9 +2,11 @@
 	"name": "limikael/blockchainwalletmock",
 	"description": "Mocks the blockchain.info wallet api for testing...",
 	"bin": ["bin/blockchainwalletmock"],
-	"require-dev": {
-		"phpunit/phpunit": "4.7.*",
+	"require": {
 		"youngj/httpserver": "^1.0"
+	},
+	"require-dev": {
+		"phpunit/phpunit": "4.7.*"
 	},
 	"autoload": {
 		"psr-4": {

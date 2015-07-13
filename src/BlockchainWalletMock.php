@@ -6,7 +6,7 @@
 	require_once __DIR__."/utils/ArrayUtil.php";
 	require_once __DIR__."/handler/BlockchainWalletMockHandler.php";
 
-	use HTTPServer;
+	use \HTTPServer;
 	use \Exception;
 	use \PDO;
 
